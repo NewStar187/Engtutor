@@ -22,6 +22,29 @@
 - **AI Engine:** Google Gemini API (`gemini-2.5-pro`)
 - **Libraries:** - `google-genai`: 최신 Google 생성형 AI SDK
   - `python-dotenv`: 환경 변수 보안 관리
+ 
+---
+
+## Example
+
+==================================================
+✅ English Buddy 연결 성공!
+   대화를 시작하세요. 종료하려면 'exit'를 입력하세요.
+==================================================
+
+You: Hi! how are you?
+Tutor is thinking... 🤔
+
+----------------------------------------
+Tutor:
+1. [Correction]: 거의 완벽해요! 문장의 첫 글자는 대문자로 시작하는 습관을 들이면 더 좋아요. 'how'를 'How'로 바꿔주세요. (It's almost perfect! It's even better if you get into the habit of starting a sentence with a capital letter. Please change 'how' to 'How'.)
+
+2. [Reply]: I'm doing great, thanks for asking! It's nice to meet you. How about you? How's your day going?
+----------------------------------------
+
+You: exit
+
+👋 Bye! 다음에 또 만나요!
 
 ---
 
