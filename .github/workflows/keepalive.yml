@@ -1,7 +1,7 @@
 # Render 무료 플랜은 15분간 접속이 없으면 서버가 잠듭니다.
 # 10분마다 /healthz 를 호출해서 서버를 깨어 있게 유지합니다.
-# 저장소 Settings → Secrets and variables → Actions → Variables 에
-# SITE_URL (예: https://english-buddy-xxxx.onrender.com) 을 추가하세요.
+# 주소가 바뀌면 아래 SITE_URL 값을 수정하거나,
+# 저장소 Settings → Secrets and variables → Actions → Variables 에 SITE_URL 을 추가하세요 (그 값이 우선).
 name: Keep Render awake
 
 on:
@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Ping /healthz
         env:
-          SITE_URL: ${{ vars.SITE_URL }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://english-buddy-avuy.onrender.com' }}
         run: |
           if [ -z "$SITE_URL" ]; then
             echo "SITE_URL 변수가 설정되지 않아 건너뜁니다."
