@@ -135,6 +135,22 @@
     el.querySelector(".explanation").textContent = result.explanation;
     el.querySelector(".reply-text").textContent = result.reply;
 
+    const translate = el.querySelector(".translate");
+    if (result.reply_ko) {
+      const btn = translate.querySelector(".translate-btn");
+      const card = translate.querySelector(".translation");
+      translate.querySelector(".translation-text").textContent = result.reply_ko;
+      btn.addEventListener("click", () => {
+        const open = card.hidden;
+        card.hidden = !open;
+        btn.classList.toggle("open", open);
+        btn.setAttribute("aria-expanded", String(open));
+        btn.querySelector("span").textContent = open ? "번역 숨기기" : "한국어로 보기";
+      });
+    } else {
+      translate.remove(); // 번역 기능 추가 전에 저장된 대화
+    }
+
     const speakBtn = el.querySelector(".speak-btn");
     if ("speechSynthesis" in window) {
       speakBtn.addEventListener("click", () => speak(result.reply, speakBtn));

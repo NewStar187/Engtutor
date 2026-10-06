@@ -49,7 +49,8 @@ SYSTEM_PROMPT = (
     "- explanation: explain the errors or better expressions in Korean. "
     "If the sentence is already natural, praise it briefly in Korean.\n"
     "- reply: continue the conversation naturally in English, keeping the "
-    "earlier context in mind. End with a question to keep the chat going."
+    "earlier context in mind. End with a question to keep the chat going.\n"
+    "- reply_ko: a natural Korean translation of your reply (not word-for-word)."
 )
 
 RESPONSE_SCHEMA = {
@@ -59,8 +60,9 @@ RESPONSE_SCHEMA = {
         "corrected": {"type": "string"},
         "explanation": {"type": "string"},
         "reply": {"type": "string"},
+        "reply_ko": {"type": "string"},
     },
-    "required": ["is_natural", "corrected", "explanation", "reply"],
+    "required": ["is_natural", "corrected", "explanation", "reply", "reply_ko"],
     "additionalProperties": False,
 }
 

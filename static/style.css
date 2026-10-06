@@ -259,6 +259,27 @@ svg {
 .speak-btn svg { width: 17px; height: 17px; }
 .speak-btn:hover, .speak-btn.playing { background: var(--surface); }
 
+/* Korean translation */
+.translate { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-top: -2px; }
+.translate-btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px 2px 4px; border: none; border-radius: 999px;
+  background: transparent; color: var(--muted); font-size: 13px;
+  transition: background .15s, color .15s;
+}
+.translate-btn svg { width: 16px; height: 16px; transition: transform .2s; }
+.translate-btn:hover { background: var(--surface-2); color: var(--text); }
+.translate-btn.open svg { transform: rotate(180deg); }
+.translation {
+  align-self: stretch;
+  padding: 10px 14px; border-radius: 14px;
+  background: var(--surface); border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  animation: rise .2s ease-out;
+}
+.translation-label { display: block; margin-bottom: 2px; font-size: 12px; font-weight: 700; color: var(--accent); }
+.translation-text { margin: 0; white-space: pre-wrap; }
+
 /* Thinking dots */
 .thinking .bubble {
   white-space: normal;
