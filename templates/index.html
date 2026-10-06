@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>English Buddy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">B</div>
+        <div>
+          <h1>English Buddy</h1>
+          <p class="tagline">말하듯 써보세요. 고쳐주고, 대화를 이어갈게요.</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div class="stats" id="stats" hidden>
+          <span class="stat-count"><strong id="stat-total">0</strong> 문장</span>
+          <span class="dot" aria-hidden="true"></span>
+          <span>자연스러움 <strong id="stat-rate">0%</strong></span>
+        </div>
+        <button class="ghost-btn" id="reset-btn" type="button" title="새 대화">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4" /></svg>
+          <span>새 대화</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="chat" id="chat">
+      <section class="empty" id="empty">
+        <div class="empty-badge">👋</div>
+        <h2>Hi there! Let's chat in English.</h2>
+        <p>틀려도 괜찮아요. 문장을 보내면 <b>교정</b>과 <b>답장</b>을 함께 드려요.</p>
+        <div class="starters" id="starters">
+          <button type="button">Hi! how are you?</button>
+          <button type="button">I go to the park yesterday with my friend.</button>
+          <button type="button">What is your favorite food?</button>
+          <button type="button">I want to improve my english speaking.</button>
+        </div>
+      </section>
+      <ol class="messages" id="messages" aria-live="polite"></ol>
+    </main>
+
+    <form class="composer" id="composer" autocomplete="off">
+      <div class="composer-box">
+        <textarea id="input" rows="1" maxlength="500" placeholder="영어로 아무 말이나 써보세요…" aria-label="메시지 입력"></textarea>
+        <button class="icon-btn" id="mic-btn" type="button" title="음성으로 말하기" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+        </button>
+        <button class="send-btn" id="send-btn" type="submit" title="보내기" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+      <p class="hint">Enter로 보내기 · Shift+Enter로 줄바꿈</p>
+    </form>
+  </div>
+
+  <template id="tpl-user">
+    <li class="msg msg-user"><div class="bubble"></div></li>
+  </template>
+
+  <template id="tpl-tutor">
+    <li class="msg msg-tutor">
+      <div class="avatar" aria-hidden="true">B</div>
+      <div class="tutor-body">
+        <div class="correction">
+          <div class="correction-head">
+            <span class="badge"></span>
+          </div>
+          <div class="diff">
+            <p class="original"></p>
+            <p class="corrected"></p>
+          </div>
+          <p class="explanation"></p>
+        </div>
+        <div class="bubble reply">
+          <p class="reply-text"></p>
+          <button class="speak-btn" type="button" title="발음 듣기">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
+          </button>
+        </div>
+      </div>
+    </li>
+  </template>
+
+  <template id="tpl-thinking">
+    <li class="msg msg-tutor thinking">
+      <div class="avatar" aria-hidden="true">B</div>
+      <div class="bubble"><span></span><span></span><span></span></div>
+    </li>
+  </template>
+
+  <template id="tpl-error">
+    <li class="msg msg-error"><div class="bubble"></div></li>
+  </template>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
