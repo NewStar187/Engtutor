@@ -22,6 +22,37 @@
 - **AI Engine:** Google Gemini API (`gemini-2.5-pro`)
 - **Libraries:** - `google-genai`: 최신 Google 생성형 AI SDK
   - `python-dotenv`: 환경 변수 보안 관리
+  - `flask`: 웹 UI 서버
+- **Frontend:** HTML / CSS / Vanilla JS (빌드 도구 없음)
+
+---
+
+## 실행 방법 (Getting Started)
+
+```bash
+pip install -r requirements.txt
+echo "GEMINI_API_KEY=your-api-key" > .env
+```
+
+**웹 버전 (추천)**
+
+```bash
+python app.py
+```
+
+브라우저에서 http://localhost:5000 을 열면 됩니다.
+
+- 교정 카드: 원문(취소선) → 고친 문장, 한국어 해설을 한눈에 확인
+- 튜터 답장 🔊 버튼으로 영어 발음 듣기 (브라우저 TTS)
+- 🎤 음성 입력 (Chrome 등 Web Speech API 지원 브라우저)
+- 이전 대화 맥락을 기억하며 대화를 이어가고, 새로고침해도 대화가 유지됨
+- 세션 통계(보낸 문장 수, 자연스러운 문장 비율), 다크 모드·모바일 지원
+
+**터미널 버전**
+
+```bash
+python Engtutor.py
+```
  
 ---
 
