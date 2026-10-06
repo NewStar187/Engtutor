@@ -37,6 +37,12 @@ def index():
     return render_template("index.html")
 
 
+@app.get("/healthz")
+def healthz():
+    """서버가 잠들지 않도록 주기적으로 호출하는 가벼운 주소 (Claude 호출 없음)"""
+    return "ok"
+
+
 @app.post("/api/chat")
 def chat():
     data = request.get_json(silent=True) or {}

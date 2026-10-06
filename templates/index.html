@@ -10,8 +10,24 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+  <div class="layout">
+  <aside class="sidebar" id="sidebar" aria-label="대화 목록">
+    <button class="new-chat-btn" id="new-chat-btn" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+      <span>새 대화</span>
+    </button>
+    <p class="sidebar-label">대화 기록</p>
+    <ul class="session-list" id="session-list"></ul>
+    <p class="session-empty" id="session-empty">아직 대화가 없어요.</p>
+  </aside>
+  <div class="backdrop" id="backdrop" hidden></div>
+
+  <div class="main">
   <div class="app">
     <header class="topbar">
+      <button class="icon-btn menu-btn" id="menu-btn" type="button" title="대화 목록" aria-controls="sidebar" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
       <div class="brand">
         <div class="logo" aria-hidden="true">B</div>
         <div>
@@ -19,17 +35,10 @@
           <p class="tagline">말하듯 써보세요. 고쳐주고, 대화를 이어갈게요.</p>
         </div>
       </div>
-      <div class="topbar-actions">
-        <div class="stats" id="stats" hidden>
-          <span class="stat-count"><strong id="stat-total">0</strong> 문장</span>
-          <span class="dot" aria-hidden="true"></span>
-          <span>자연스러움 <strong id="stat-rate">0%</strong></span>
-        </div>
-        <button class="ghost-btn" id="reset-btn" type="button" title="새 대화">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4" /></svg>
-          <span>새 대화</span>
-        </button>
-      </div>
+      <button class="ghost-btn topbar-new" id="topbar-new-btn" type="button" title="새 대화">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        <span>새 대화</span>
+      </button>
     </header>
 
     <main class="chat" id="chat">
@@ -60,6 +69,20 @@
       <p class="hint">Enter로 보내기 · Shift+Enter로 줄바꿈</p>
     </form>
   </div>
+  </div>
+  </div>
+
+  <template id="tpl-session">
+    <li class="session">
+      <button class="session-open" type="button">
+        <span class="session-title"></span>
+        <span class="session-date"></span>
+      </button>
+      <button class="session-delete" type="button" title="대화 삭제" aria-label="대화 삭제">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </li>
+  </template>
 
   <template id="tpl-user">
     <li class="msg msg-user"><div class="bubble"></div></li>
@@ -84,6 +107,16 @@
           <button class="speak-btn" type="button" title="발음 듣기">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg>
           </button>
+        </div>
+        <div class="translate">
+          <button class="translate-btn" type="button" aria-expanded="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            <span>한국어로 보기</span>
+          </button>
+          <div class="translation" hidden>
+            <span class="translation-label">한국어 번역</span>
+            <p class="translation-text"></p>
+          </div>
         </div>
       </div>
     </li>

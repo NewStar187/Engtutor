@@ -47,9 +47,11 @@ python app.py
 
 - 교정 카드: 원문(취소선) → 고친 문장, 한국어 해설을 한눈에 확인
 - 튜터 답장 🔊 버튼으로 영어 발음 듣기 (브라우저 TTS)
+- 답장 아래 **한국어로 보기**를 누르면 자연스러운 한국어 번역 카드가 펼쳐짐
 - 🎤 음성 입력 (Chrome 등 Web Speech API 지원 브라우저)
-- 이전 대화 맥락을 기억하며 대화를 이어가고, 새로고침해도 대화가 유지됨
-- 세션 통계(보낸 문장 수, 자연스러운 문장 비율), 다크 모드·모바일 지원
+- 대화를 세션별로 나눠 저장 (왼쪽 목록에서 새 대화·이전 대화 열기·삭제), 새로고침해도 유지됨
+- 각 대화의 앞 내용을 기억하며 이어서 대화
+- 다크 모드·모바일 지원
 
 **터미널 버전**
 
@@ -92,3 +94,12 @@ You: exit
 > ⚠️ 모든 사용자의 요청이 **내 API 키로 과금**됩니다. 남용을 막기 위해 IP당 1분 15회(`RATE_LIMIT_PER_MIN`), 메시지 500자 제한이 걸려 있습니다. [Anthropic Console](https://console.anthropic.com)에서 월 사용 한도(spend limit)도 꼭 설정하세요.
 >
 > 무료 플랜은 15분간 접속이 없으면 서버가 잠들어서, 다음 첫 접속은 30초~1분 정도 걸릴 수 있습니다.
+
+### 첫 접속이 느리지 않게 하기 (서버 깨워두기)
+GitHub Actions(`.github/workflows/keepalive.yml`)가 10분마다 사이트의 `/healthz` 주소를 호출해서 서버가 잠들지 않게 합니다.
+
+1. GitHub 저장소 → **Settings** → **Secrets and variables** → **Actions** → **Variables** 탭
+2. **New repository variable** → Name: `SITE_URL`, Value: Render 사이트 주소 (예: `https://english-buddy-xxxx.onrender.com`)
+3. **Actions** 탭 → **Keep Render awake** → **Run workflow**로 바로 실행해서 초록색 체크가 뜨는지 확인
+
+> GitHub 예약 실행은 가끔 몇 분씩 늦어질 수 있어서 100% 보장되지는 않습니다. 확실하게 하려면 Render 유료 플랜(Starter)을 쓰면 잠들지 않습니다.

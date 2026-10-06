@@ -7,17 +7,45 @@
   const input = $("input");
   const sendBtn = $("send-btn");
   const micBtn = $("mic-btn");
-  const STORAGE_KEY = "engtutor.conversation";
+  const sessionList = $("session-list");
+  const sidebar = $("sidebar");
+  const backdrop = $("backdrop");
+  const menuBtn = $("menu-btn");
+  const STORAGE_KEY = "engtutor.sessions";
+  const LEGACY_KEY = "engtutor.conversation";
 
-  // 대화 기록: { role: "user" | "tutor", text, result? }
-  let history = load();
+  // 세션: { id, title, updatedAt, history: [{ role: "user" | "tutor", text, result? }] }
+  let state = load();
   let busy = false;
 
   function load() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; }
+    let data = null;
+    try { data = JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { /* 무시 */ }
+    if (!data || !Array.isArray(data.sessions)) data = { sessions: [], currentId: null };
+
+    // 예전 버전(대화 1개만 저장)에서 옮겨오기
+    try {
+      const legacy = JSON.parse(localStorage.getItem(LEGACY_KEY));
+      if (Array.isArray(legacy) && legacy.length) {
+        const s = newSession(legacy.find((t) => t.role === "user")?.text || "이전 대화");
+        s.history = legacy;
+        data.sessions.unshift(s);
+        data.currentId = s.id;
+      }
+      localStorage.removeItem(LEGACY_KEY);
+    } catch { /* 무시 */ }
+    return data;
   }
   function save() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(history)); } catch { /* 저장 불가 시 무시 */ }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* 저장 불가 시 무시 */ }
+  }
+
+  function newSession(firstText) {
+    const title = firstText.length > 40 ? `${firstText.slice(0, 40)}…` : firstText;
+    return { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, title, updatedAt: Date.now(), history: [] };
+  }
+  function current() {
+    return state.sessions.find((s) => s.id === state.currentId) || null;
   }
 
   function clone(id) {
@@ -30,14 +58,67 @@
 
   function updateView() {
     empty.hidden = messages.children.length > 0;
-    const results = history.filter((t) => t.role === "tutor" && t.result);
-    const total = results.length;
-    const natural = results.filter((t) => t.result.is_natural).length;
-    $("stats").hidden = total === 0;
-    $("stat-total").textContent = total;
-    $("stat-rate").textContent = total ? `${Math.round((natural / total) * 100)}%` : "0%";
   }
 
+  // ---------- 사이드바 (대화 목록) ----------
+  function formatDate(ts) {
+    const d = new Date(ts);
+    const now = new Date();
+    if (d.toDateString() === now.toDateString()) {
+      return d.toLocaleTimeString("ko-KR", { hour: "numeric", minute: "2-digit" });
+    }
+    return d.toLocaleDateString("ko-KR", { month: "short", day: "numeric" });
+  }
+
+  function renderSessions() {
+    sessionList.innerHTML = "";
+    const sorted = [...state.sessions].sort((a, b) => b.updatedAt - a.updatedAt);
+    for (const s of sorted) {
+      const el = clone("tpl-session");
+      el.classList.toggle("active", s.id === state.currentId);
+      el.querySelector(".session-title").textContent = s.title;
+      el.querySelector(".session-date").textContent = formatDate(s.updatedAt);
+      el.querySelector(".session-open").addEventListener("click", () => openSession(s.id));
+      el.querySelector(".session-delete").addEventListener("click", () => deleteSession(s.id));
+      sessionList.appendChild(el);
+    }
+    $("session-empty").hidden = sorted.length > 0;
+  }
+
+  function openSession(id) {
+    window.speechSynthesis?.cancel();
+    state.currentId = id;
+    save();
+    renderAll();
+    closeSidebar();
+    input.focus();
+  }
+
+  function startNewSession() {
+    openSession(null); // 첫 메시지를 보낼 때 세션이 만들어짐
+  }
+
+  function deleteSession(id) {
+    const s = state.sessions.find((x) => x.id === id);
+    if (!s || !confirm(`"${s.title}" 대화를 삭제할까요?`)) return;
+    state.sessions = state.sessions.filter((x) => x.id !== id);
+    if (state.currentId === id) state.currentId = null;
+    save();
+    renderAll();
+  }
+
+  function openSidebar() {
+    sidebar.classList.add("open");
+    backdrop.hidden = false;
+    menuBtn.setAttribute("aria-expanded", "true");
+  }
+  function closeSidebar() {
+    sidebar.classList.remove("open");
+    backdrop.hidden = true;
+    menuBtn.setAttribute("aria-expanded", "false");
+  }
+
+  // ---------- 메시지 ----------
   function renderUser(text) {
     const el = clone("tpl-user");
     el.querySelector(".bubble").textContent = text;
@@ -53,6 +134,22 @@
     el.querySelector(".corrected").textContent = result.corrected;
     el.querySelector(".explanation").textContent = result.explanation;
     el.querySelector(".reply-text").textContent = result.reply;
+
+    const translate = el.querySelector(".translate");
+    if (result.reply_ko) {
+      const btn = translate.querySelector(".translate-btn");
+      const card = translate.querySelector(".translation");
+      translate.querySelector(".translation-text").textContent = result.reply_ko;
+      btn.addEventListener("click", () => {
+        const open = card.hidden;
+        card.hidden = !open;
+        btn.classList.toggle("open", open);
+        btn.setAttribute("aria-expanded", String(open));
+        btn.querySelector("span").textContent = open ? "번역 숨기기" : "한국어로 보기";
+      });
+    } else {
+      translate.remove(); // 번역 기능 추가 전에 저장된 대화
+    }
 
     const speakBtn = el.querySelector(".speak-btn");
     if ("speechSynthesis" in window) {
@@ -72,7 +169,7 @@
   function renderAll() {
     messages.innerHTML = "";
     let lastUser = "";
-    for (const turn of history) {
+    for (const turn of current()?.history || []) {
       if (turn.role === "user") {
         lastUser = turn.text;
         renderUser(turn.text);
@@ -80,6 +177,7 @@
         renderTutor(turn.result, lastUser);
       }
     }
+    renderSessions();
     updateView();
     scrollToBottom();
   }
@@ -89,9 +187,18 @@
     busy = true;
     text = text.trim();
 
-    const context = history.map(({ role, text }) => ({ role, text }));
-    history.push({ role: "user", text });
+    let session = current();
+    if (!session) {
+      session = newSession(text);
+      state.sessions.push(session);
+      state.currentId = session.id;
+    }
+    const context = session.history.map(({ role, text }) => ({ role, text }));
+    session.history.push({ role: "user", text });
+    session.updatedAt = Date.now();
+    save();
     renderUser(text);
+    renderSessions();
     input.value = "";
     autosize();
     updateView();
@@ -109,16 +216,24 @@
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.error) throw new Error(data.error || `서버 오류 (${res.status})`);
 
-      thinking.remove();
-      history.push({ role: "tutor", text: data.reply, result: data });
-      renderTutor(data, text);
+      session.history.push({ role: "tutor", text: data.reply, result: data });
+      session.updatedAt = Date.now();
       save();
+      thinking.remove();
+      if (session.id === state.currentId) renderTutor(data, text);
     } catch (err) {
       thinking.remove();
-      history.pop(); // 실패한 메시지는 맥락에서 제외
-      renderError(err.message || "연결에 실패했어요. 다시 시도해 주세요.");
+      session.history.pop(); // 실패한 메시지는 맥락에서 제외
+      if (!session.history.length) {
+        state.sessions = state.sessions.filter((s) => s !== session); // 빈 세션은 목록에서 제거
+      }
+      save();
+      if (session.id === state.currentId) {
+        renderError(err.message || "연결에 실패했어요. 다시 시도해 주세요.");
+      }
     } finally {
       busy = false;
+      renderSessions();
       updateView();
       scrollToBottom();
       syncSendButton();
@@ -185,14 +300,11 @@
     if (e.target.tagName === "BUTTON") send(e.target.textContent);
   });
 
-  $("reset-btn").addEventListener("click", () => {
-    if (history.length && !confirm("대화를 지우고 새로 시작할까요?")) return;
-    window.speechSynthesis?.cancel();
-    history = [];
-    save();
-    renderAll();
-    input.focus();
-  });
+  $("new-chat-btn").addEventListener("click", startNewSession);
+  $("topbar-new-btn").addEventListener("click", startNewSession);
+  menuBtn.addEventListener("click", () => (sidebar.classList.contains("open") ? closeSidebar() : openSidebar()));
+  backdrop.addEventListener("click", closeSidebar);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSidebar(); });
 
   renderAll();
   input.focus();
