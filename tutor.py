@@ -1,14 +1,40 @@
 import json
 import os
+import sys
+from pathlib import Path
 
 import anthropic
 from dotenv import load_dotenv
 
+ENV_PATH = Path(__file__).resolve().parent / ".env"
+
 # 1. 환경 변수 로드
-load_dotenv(override=True)
+load_dotenv(ENV_PATH, override=True)
+
+
+def ask_for_api_key():
+    """키가 없으면 처음 실행할 때 물어보고 .env 파일을 대신 만들어 줌"""
+    if not sys.stdin.isatty():  # 배포 서버 등 입력할 수 없는 환경
+        raise SystemExit(
+            "❌ ANTHROPIC_API_KEY가 없습니다. "
+            "배포 서비스의 환경 변수(Environment) 설정에 키를 추가하세요."
+        )
+    print("🔑 Claude API 키가 아직 없어요.")
+    print("   https://console.anthropic.com/settings/keys 에서 발급받은 키를 붙여넣으세요.")
+    key = input("   API 키: ").strip()
+    if not key:
+        raise SystemExit("❌ 키가 입력되지 않았어요.")
+    existing = ENV_PATH.read_text(encoding="utf-8") if ENV_PATH.exists() else ""
+    with open(ENV_PATH, "a", encoding="utf-8") as f:
+        if existing and not existing.endswith("\n"):
+            f.write("\n")
+        f.write(f"ANTHROPIC_API_KEY={key}\n")
+    os.environ["ANTHROPIC_API_KEY"] = key
+    print(f"✅ 저장했어요: {ENV_PATH}\n   (키를 바꾸려면 이 파일을 수정하거나 지우고 다시 실행하세요)\n")
+
 
 if not os.getenv("ANTHROPIC_API_KEY"):
-    raise SystemExit("❌ .env 파일에서 ANTHROPIC_API_KEY를 확인하세요.")
+    ask_for_api_key()
 
 client = anthropic.Anthropic()
 MODEL_ID = os.getenv("CLAUDE_MODEL", "claude-sonnet-5-5")

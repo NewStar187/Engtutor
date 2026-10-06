@@ -32,8 +32,10 @@
 
 ```bash
 pip install -r requirements.txt
-echo "ANTHROPIC_API_KEY=your-api-key" > .env
 ```
+
+> 🔑 **API 키:** 처음 실행하면 키를 붙여넣으라고 물어보고, 프로젝트 폴더에 `.env` 파일을 자동으로 만들어 줍니다.
+> 키를 바꾸려면 `.env` 파일을 수정하거나 지우고 다시 실행하세요. (`.env`는 보안상 GitHub에 올라가지 않으며, 점(.)으로 시작해서 탐색기에서 숨김 파일로 보일 수 있습니다.)
 
 **웹 버전 (추천)**
 
